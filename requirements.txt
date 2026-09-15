@@ -1,0 +1,12 @@
+numpy
+scipy
+pandas
+pillow
+scikit-image
+soundfile
+
+# Phase 3 (model training)
+torch
+torchaudio
+scikit-learn
+matplotlib

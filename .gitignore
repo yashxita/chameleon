@@ -1,0 +1,30 @@
+# Full generated dataset is ~400MB / 8000 files -- reproducible via
+# src/data_generation.py + src/build_dataset.py (fixed seed), so we don't
+# commit it. sample_data/ (small, committed) shows what it looks like.
+data/covers/*
+data/stego/*
+!data/covers/.gitkeep
+!data/stego/.gitkeep
+
+# Trained model checkpoints -- reproducible via src/train.py, and some are
+# large (1MB+), no need to bloat the repo with them
+models/*.pt
+models/*.pth
+models/*.pkl
+
+# Python virtual environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
