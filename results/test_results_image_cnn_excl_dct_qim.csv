@@ -1,0 +1,10 @@
+tag,modality,model,excluded_method,method,accuracy
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,dct_qim,0.7674074074074074
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,lsb,0.7555555555555555
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,lsb_matching,0.7614814814814815
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,none,0.8044444444444444
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,OVERALL,0.7657777777777778
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,BALANCED,0.782962962962963
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,COVER_RECALL,0.8044444444444444
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,STEGO_RECALL,0.7614814814814815
+image_cnn_excl_dct_qim,image,image_cnn,dct_qim,AUC,0.8794513031550069

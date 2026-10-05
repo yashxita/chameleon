@@ -1,0 +1,17 @@
+modality,method,n,accuracy,setting
+image,dct_qim,180,0.6111111111111112,all_methods_train
+image,lsb,180,0.5944444444444444,all_methods_train
+image,lsb_matching,180,0.48333333333333334,all_methods_train
+image,none,60,0.8833333333333333,all_methods_train
+audio,echo_hiding,180,0.6333333333333333,all_methods_train
+audio,lsb,180,0.5555555555555556,all_methods_train
+audio,lsb_matching,180,0.5055555555555555,all_methods_train
+audio,none,60,0.7,all_methods_train
+image,dct_qim,180,0.5333333333333333,held_out_dct_qim
+image,lsb,180,0.5666666666666667,held_out_dct_qim
+image,lsb_matching,180,0.4666666666666667,held_out_dct_qim
+image,none,60,0.8833333333333333,held_out_dct_qim
+audio,echo_hiding,180,0.38333333333333336,held_out_echo_hiding
+audio,lsb,180,0.45,held_out_echo_hiding
+audio,lsb_matching,180,0.42777777777777776,held_out_echo_hiding
+audio,none,60,0.85,held_out_echo_hiding

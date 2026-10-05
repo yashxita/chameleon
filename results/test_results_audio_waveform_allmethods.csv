@@ -1,0 +1,10 @@
+tag,modality,model,excluded_method,method,accuracy
+audio_waveform_allmethods,audio,audio_waveform,,echo_hiding,0.8355555555555556
+audio_waveform_allmethods,audio,audio_waveform,,lsb,0.17777777777777778
+audio_waveform_allmethods,audio,audio_waveform,,lsb_matching,0.17777777777777778
+audio_waveform_allmethods,audio,audio_waveform,,none,0.8222222222222222
+audio_waveform_allmethods,audio,audio_waveform,,OVERALL,0.43955555555555553
+audio_waveform_allmethods,audio,audio_waveform,,BALANCED,0.6096296296296296
+audio_waveform_allmethods,audio,audio_waveform,,COVER_RECALL,0.8222222222222222
+audio_waveform_allmethods,audio,audio_waveform,,STEGO_RECALL,0.397037037037037
+audio_waveform_allmethods,audio,audio_waveform,,AUC,0.640482853223594
