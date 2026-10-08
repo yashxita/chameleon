@@ -1,0 +1,11 @@
+detector,modality,setting,held_out_method,tag,overall_acc,balanced_acc,cover_recall,stego_recall,auc
+cnn:audio_spectrogram,audio,all_methods_train,,audio_spectrogram_allmethods,0.535,0.6527777777777778,0.8,0.5055555555555555,0.7070061728395063
+cnn:audio_spectrogram,audio,held_out_echo_hiding,echo_hiding,audio_spectrogram_excl_echo_hiding,0.1933333333333333,0.5518518518518518,1.0,0.1037037037037037,0.6524845679012343
+cnn:audio_waveform,audio,all_methods_train,,audio_waveform_allmethods,0.665,0.5175925925925926,0.3333333333333333,0.7018518518518518,0.5326697530864197
+cnn:audio_waveform,audio,held_out_echo_hiding,echo_hiding,audio_waveform_excl_echo_hiding,0.46,0.5,0.55,0.45,0.4964197530864198
+cnn:image_cnn,image,all_methods_train,,image_cnn_allmethods,0.68,0.5037037037037038,0.2833333333333333,0.7240740740740741,0.5159567901234569
+cnn:image_cnn,image,held_out_dct_qim,dct_qim,image_cnn_excl_dct_qim,0.5716666666666667,0.5027777777777778,0.4166666666666667,0.5888888888888889,0.5219135802469135
+classical:random_forest,audio,all_methods_train,,classical_audio_all_methods_train,0.5783333333333334,0.6324074074074073,0.7,0.5648148148148148,
+classical:random_forest,audio,held_out_echo_hiding,echo_hiding,classical_audio_held_out_echo_hiding,0.4633333333333333,0.6351851851851852,0.85,0.4203703703703704,
+classical:random_forest,image,all_methods_train,,classical_image_all_methods_train,0.595,0.7231481481481481,0.8833333333333333,0.562962962962963,
+classical:random_forest,image,held_out_dct_qim,dct_qim,classical_image_held_out_dct_qim,0.5583333333333333,0.7027777777777777,0.8833333333333333,0.5222222222222223,

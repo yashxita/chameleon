@@ -1,6 +1,10 @@
 tag,modality,model,excluded_method,method,accuracy
-image_cnn_allmethods,image,image_cnn,,dct_qim,0.9166666666666666
-image_cnn_allmethods,image,image_cnn,,lsb,0.9166666666666666
-image_cnn_allmethods,image,image_cnn,,lsb_matching,0.9222222222222223
-image_cnn_allmethods,image,image_cnn,,none,0.08333333333333333
-image_cnn_allmethods,image,image_cnn,,OVERALL,0.835
+image_cnn_allmethods,image,image_cnn,,dct_qim,0.8340740740740741
+image_cnn_allmethods,image,image_cnn,,lsb,0.7925925925925926
+image_cnn_allmethods,image,image_cnn,,lsb_matching,0.8
+image_cnn_allmethods,image,image_cnn,,none,0.8266666666666667
+image_cnn_allmethods,image,image_cnn,,OVERALL,0.8106666666666666
+image_cnn_allmethods,image,image_cnn,,BALANCED,0.8177777777777777
+image_cnn_allmethods,image,image_cnn,,COVER_RECALL,0.8266666666666667
+image_cnn_allmethods,image,image_cnn,,STEGO_RECALL,0.8088888888888889
+image_cnn_allmethods,image,image_cnn,,AUC,0.9175989026063102

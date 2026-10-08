@@ -1,0 +1,10 @@
+tag,modality,model,excluded_method,method,accuracy
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,echo_hiding,0.17629629629629628
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,lsb,0.16
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,lsb_matching,0.16
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,none,0.84
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,OVERALL,0.2328888888888889
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,BALANCED,0.5027160493827161
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,COVER_RECALL,0.84
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,STEGO_RECALL,0.1654320987654321
+audio_waveform_excl_echo_hiding,audio,audio_waveform,echo_hiding,AUC,0.5028861454046639

@@ -1,0 +1,10 @@
+tag,modality,model,excluded_method,method,accuracy
+audio_spectrogram_allmethods,audio,audio_spectrogram,,echo_hiding,0.8555555555555555
+audio_spectrogram_allmethods,audio,audio_spectrogram,,lsb,0.3388888888888889
+audio_spectrogram_allmethods,audio,audio_spectrogram,,lsb_matching,0.32222222222222224
+audio_spectrogram_allmethods,audio,audio_spectrogram,,none,0.8
+audio_spectrogram_allmethods,audio,audio_spectrogram,,OVERALL,0.535
+audio_spectrogram_allmethods,audio,audio_spectrogram,,BALANCED,0.6527777777777778
+audio_spectrogram_allmethods,audio,audio_spectrogram,,COVER_RECALL,0.8
+audio_spectrogram_allmethods,audio,audio_spectrogram,,STEGO_RECALL,0.5055555555555555
+audio_spectrogram_allmethods,audio,audio_spectrogram,,AUC,0.7070061728395063
