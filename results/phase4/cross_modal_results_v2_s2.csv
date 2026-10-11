@@ -1,0 +1,11 @@
+condition,target,balanced,auc,cover_recall,stego_recall
+image_only,image,0.76,0.875,0.822,0.697
+audio_only,audio,0.538,0.653,0.289,0.787
+zeroshot_image_to_audio,audio,0.5,0.505,1.0,0.0
+bnrecal_image_to_audio,audio,0.516,0.526,0.302,0.729
+finetune_image_to_audio,audio,0.633,0.712,0.48,0.787
+zeroshot_audio_to_image,image,0.444,0.427,0.662,0.225
+bnrecal_audio_to_image,image,0.559,0.589,0.493,0.625
+finetune_audio_to_image,image,0.67,0.77,0.658,0.682
+joint,image,0.714,0.838,0.738,0.689
+joint,audio,0.765,0.883,0.622,0.908

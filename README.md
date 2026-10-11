@@ -28,10 +28,10 @@ audio) has hidden data embedded in it. This project builds:
 - [x] **Phase 1** -- setup, scope, environment
 - [x] **Phase 2** -- cover dataset generation + multi-method embedding pipeline
 - [x] **Phase 3** -- blind steganalysis models (image + audio CNNs, classical baseline)
-- [ ] **Phase 4** -- cross-modal transfer analysis
-- [ ] **Phase 5** -- adversarial attacks + limit analysis
-- [ ] **Phase 6** -- explainability + basic defense
-- [ ] **Phase 7** -- consolidation, report, demo
+- [x] **Phase 4** -- cross-modal transfer analysis
+- [x] **Phase 5** -- adversarial attacks + limit analysis
+- [x] **Phase 6** -- explainability + basic defense
+- [ ] **Phase 7** -- consolidation, report, demo (demo done, report in progress)
 
 ## Repo structure
 
@@ -51,6 +51,14 @@ src/
   train.py               # CNN training, balanced-accuracy checkpointing
   run_phase3.py          # runs all six Phase 3 configurations
   summarize_phase3.py    # joins every result into one comparison table
+  cross_modal.py         # Phase 4: shared trunk, image + audio front ends
+  attacks.py             # Phase 5: FGSM, PGD, BPDA, transfer, quality metrics
+  limit_analysis.py      # Phase 5: sweeps the attack budget, finds break points
+  plot_phase5.py         # Phase 5: figures and summary table from the sweeps
+  explain.py             # Phase 6: Grad-CAM before / after an attack
+  adv_train.py           # Phase 6: adversarial fine-tuning defense
+  surrogate.py           # fallback surrogate for the image transfer attack
+  demo.py                # Phase 7: live detect, attack, re-detect demo
 chameleon_phase3_colab.ipynb   # self-contained GPU run of all of Phase 3
 data/
   covers/  stego/        # generated, gitignored
@@ -63,6 +71,9 @@ results/
   test_results_*.csv     # per-run test metrics
   train_history_*.csv    # per-run training curves
   archive_v1/            # first full run, kept as an ablation (see below)
+  phase4/                # cross-modal results (CSVs + RESULTS.md)
+  phase5/                # attack sweeps, figures, Grad-CAM, defense (RESULTS.md)
+  demo/                  # output of demo.py
 ```
 
 ## Dataset
@@ -222,13 +233,50 @@ python summarize_phase3.py       # consolidated tables
 
 On CPU only, expect the full CNN batch to take several hours.
 
-## Next: Phase 4
+## Phase 4: cross-modal transfer
 
-Cross-modal transfer. Planned design: modality-specific *parameter-free*
-residual front ends (KV filter for images; high-pass plus a reshape of the
-32,000-sample waveform to a 160x200 map for audio) feeding one fully shared
-convolutional trunk, so zero-shot transfer involves no audio-fitted weights
-at all. Conditions: single-modality controls, zero-shot transfer in both
-directions, BatchNorm-recalibration-only transfer, full fine-tuning, and
-joint training. Given finding 3, the audio side of every condition is
-effectively about echo hiding.
+One shared convolutional trunk with two parameter-free front ends (image: KV high-pass;
+audio: second difference, per-clip standardisation, reshape to 160x200). Mean over 3 seeds.
+
+| Condition | Target | Balanced | AUC |
+|---|---|---|---|
+| image only | image | 0.769 | 0.865 |
+| audio only (echo hiding) | audio | 0.674 (unstable, 0.54 to 0.76) | 0.797 |
+| zero-shot, image trunk | audio | 0.500 | 0.500 |
+| zero-shot, audio trunk | image | 0.436 | 0.432 |
+| BatchNorm recalibration only, audio trunk | image | 0.572 | 0.607 |
+| joint, one BatchNorm per modality | image | 0.728 | 0.837 |
+| joint, one BatchNorm per modality | audio | 0.739 | 0.860 |
+
+Zero-shot transfer fails in both directions. One shared trunk with a BatchNorm per modality
+serves both modalities at close to single-modality accuracy, but nothing shows one modality
+helping the other. Full table, per-seed numbers and caveats: `results/phase4/RESULTS.md`.
+
+## Phase 5 and 6: adversarial limit analysis, explainability, defense
+
+White-box attacks on the trained detectors, with perturbations rounded to what a real PNG or
+WAV can hold, reported next to their perceptual cost and the embedding's own distortion.
+
+- Image CNN: PGD at **1 grey level (51 dB)** evades 100% of detected stego; random noise 16x
+  larger evades 2%. That attack changes about half the pixels, so it would also destroy an LSB
+  payload: it shows the detector is fragile, not that a message got through.
+- Audio waveform CNN: PGD+BPDA needs about 23.5 dB SNR to evade half, 12 dB for 90%. That is as
+  much damage as the echo-hiding embedding itself (22 dB). Gradient masking is real here.
+- Audio spectrogram CNN: never pushed past 50% evasion. Its Phase 3 accuracy depended on batch
+  statistics; with fixed normalisation constants it is batch-independent (AUC 0.81).
+- Grad-CAM shows the image detector's attention collapsing under attack. Adversarial
+  fine-tuning at a CPU-sized budget (80 steps) did not help: a negative result.
+
+Details, caveats and the commands to reproduce: `results/phase5/RESULTS.md`.
+
+## Demo
+
+```bash
+cd src
+python demo.py                       # image: detect, attack at 1 grey level, re-detect
+python demo.py --modality audio      # audio: PGD + BPDA at 2048 int16 steps
+python demo.py --file my_image.png   # your own 256x256 grayscale PNG
+```
+
+The attacked file is saved as a real PNG or WAV, reloaded and scored again, so the verdict flip
+is what the file on disk does, not just the in-memory tensor. Output goes to `results/demo/`.
