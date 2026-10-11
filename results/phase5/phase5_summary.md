@@ -15,5 +15,6 @@
 | Image CNN | PGD | 0.840 | 1 grey | 51.0 dB | 1 grey | 51.0 dB | 1.00 |
 | Image CNN | PGD + BPDA | 0.840 | 1 grey | 51.1 dB | 1 grey | 51.1 dB | 1.00 |
 | Image CNN | random noise (control) | 0.840 | not reached |  | not reached |  | 0.02 |
+| Image CNN | transfer (black-box) | 0.840 | 1 grey | 51.0 dB | 2 grey | 45.9 dB | 1.00 |
 | Image CNN, adversarially fine-tuned | PGD | 0.826 | 1 grey | 51.0 dB | 1 grey | 51.0 dB | 1.00 |
 | Image CNN, adversarially fine-tuned | PGD + BPDA | 0.826 | 1 grey | 51.0 dB | 1 grey | 51.0 dB | 1.00 |

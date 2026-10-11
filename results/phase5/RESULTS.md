@@ -18,6 +18,7 @@ audio echo hiding 22 dB, audio LSB 83 dB.
 | Image CNN | FGSM | 2 grey levels, 42 dB | not reached | 0.73 |
 | Image CNN | PGD | **1 grey level, 51 dB** | **1 grey level, 51 dB** | 1.00 |
 | Image CNN | PGD + BPDA | 1 grey level, 51 dB | 1 grey level, 51 dB | 1.00 |
+| Image CNN | transfer (surrogate trained without DCT-QIM) | 1 grey level, 51 dB | 2 grey levels, 46 dB | 1.00 |
 | Audio waveform CNN | random noise (control) | not reached | not reached | 0.34 |
 | Audio waveform CNN | PGD | 4096 steps, 12.6 dB | not reached | 0.63 |
 | Audio waveform CNN | PGD + BPDA | **1024 steps, 23.5 dB** | 4096 steps, 12.2 dB | 0.96 |
@@ -33,7 +34,8 @@ Full table: `phase5_summary.md` / `phase5_summary.csv`. Figures: `fig_balanced_a
 
 1. **The image detector is adversarially fragile, not noise fragile.** A 1-grey-level PGD
    perturbation (51 dB PSNR, the same size as the embedding itself) evades 100% of
-   detected files. Random sign noise 16x larger evades 2%. A 1-grey-level perturbation
+   detected files, and a black-box transfer attack from a surrogate evades 50% at the same
+   size and 90% at 2 grey levels (46 dB). Random sign noise 16x larger evades 2%. A 1-grey-level perturbation
    changes about 51-54% of pixels, so it would also destroy an LSB payload: evading the
    detector this way is not the same as delivering a message. Hiding a payload that
    survives needs the perturbation applied to the cover before embedding.
@@ -71,10 +73,10 @@ Full table: `phase5_summary.md` / `phase5_summary.csv`. Figures: `fig_balanced_a
   0.36 (waveform) and 0.57 (spectrogram).
 - Small attack sets (48 stego and 72 cover files per seed, 3 seeds) and 8-10 PGD steps,
   chosen to fit a 2-core CPU. Error bands in the figures are 1 sd over only 3 seeds.
-- The image transfer (black-box) attack is NOT run: it needs a competent surrogate, and a
-  plain CNN trained here stayed at chance on CPU. `limit_analysis.py` uses
-  `models/image_cnn_excl_dct_qim.pt` if present (same architecture trained without
-  DCT-QIM); run `--attacks transfer --tag _transfer` once it is available.
+- The image transfer attack uses a surrogate with the same architecture, trained without DCT-QIM
+  (`models/image_cnn_excl_dct_qim.pt`: cover recall 0.83, stego recall 0.75 to 0.78). The attacker
+  therefore knows the architecture and the covers but not the target's weights or its DCT-QIM
+  training data: a gray-box setting, not a fully blind one.
 - Covers come from 15 source photographs and synthetic audio (see the Phase 3 limitations).
 
 ## Reproduce

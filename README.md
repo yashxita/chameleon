@@ -258,7 +258,8 @@ White-box attacks on the trained detectors, with perturbations rounded to what a
 WAV can hold, reported next to their perceptual cost and the embedding's own distortion.
 
 - Image CNN: PGD at **1 grey level (51 dB)** evades 100% of detected stego; random noise 16x
-  larger evades 2%. That attack changes about half the pixels, so it would also destroy an LSB
+  larger evades 2%. A black-box transfer attack from a surrogate trained without DCT-QIM evades
+  50% at 1 grey level and 90% at 2. That attack changes about half the pixels, so it would also destroy an LSB
   payload: it shows the detector is fragile, not that a message got through.
 - Audio waveform CNN: PGD+BPDA needs about 23.5 dB SNR to evade half, 12 dB for 90%. That is as
   much damage as the echo-hiding embedding itself (22 dB). Gradient masking is real here.
