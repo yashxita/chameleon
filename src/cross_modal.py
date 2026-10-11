@@ -55,12 +55,37 @@ OUT = os.path.join(_ROOT, "results", "phase4")
 AUDIO_SHAPE = (160, 200)          # 160 * 200 = 32000 samples
 
 
+class DomainBN(nn.Module):
+    """One BatchNorm per modality (separate running stats AND affine), selected by
+    the owning model's current modality. Used only for joint training: image and
+    audio residuals have very different activation statistics, and one shared set of
+    running statistics fits neither."""
+
+    def __init__(self, bn, owner):
+        super().__init__()
+        object.__setattr__(self, "_owner", owner)       # not a submodule (avoids a cycle)
+        self.bns = nn.ModuleDict({"image": bn, "audio": copy.deepcopy(bn)})
+
+    def forward(self, x):
+        return self.bns[self._owner.current](x)
+
+
 class CrossModalCNN(ImageStegoCNN):
     """ImageStegoCNN's trunk with a second, parameter-free audio front end."""
 
-    def __init__(self, tlu_threshold=3.0):
+    def __init__(self, tlu_threshold=3.0, domain_bn=False):
         super().__init__(tlu_threshold)
         self.audio_hpf = AudioHighPassResidual()
+        self.current = "image"
+        if domain_bn:
+            self._swap_bn(self)
+
+    def _swap_bn(self, mod):
+        for name, child in list(mod.named_children()):
+            if isinstance(child, nn.BatchNorm2d):
+                setattr(mod, name, DomainBN(child, self))
+            else:
+                self._swap_bn(child)
 
     def front(self, x, modality):
         if modality == "image":
@@ -71,6 +96,7 @@ class CrossModalCNN(ImageStegoCNN):
         return r.view(x.shape[0], 1, *AUDIO_SHAPE)
 
     def forward(self, x, modality="image"):
+        self.current = modality
         x = self.front(x, modality)
         x = self.g5(self.g4(self.g3(self.g2(self.g1(x)))))
         return self.classifier(self.pool(x).flatten(1))
@@ -80,8 +106,8 @@ class CrossModalCNN(ImageStegoCNN):
 # Data
 # ---------------------------------------------------------------------------
 
-def make_loader(modality, split, bs, train, max_samples=None, seed=0, num_workers=0):
-    df = filter_manifest(load_manifest(), modality, split)
+def make_loader(modality, split, bs, train, max_samples=None, seed=0, num_workers=0, methods=None):
+    df = filter_manifest(load_manifest(), modality, split, methods=methods)
     if max_samples and len(df) > max_samples:
         df = df.sample(max_samples, random_state=seed).reset_index(drop=True)
     DS = ImageStegoDataset if modality == "image" else AudioStegoDataset
@@ -176,6 +202,13 @@ def main():
     ap.add_argument("--finetune-lr", type=float, default=5e-5)
     ap.add_argument("--max-train-samples", type=int, default=6000)
     ap.add_argument("--max-eval-samples", type=int, default=None)
+    ap.add_argument("--audio-methods", nargs="+", default=None,
+                    help="restrict audio stego to these methods (covers always kept), e.g. echo_hiding")
+    ap.add_argument("--image-methods", nargs="+", default=None)
+    ap.add_argument("--lr-audio", type=float, default=None, help="learning rate for audio-only training")
+    ap.add_argument("--joint-domain-bn", action="store_true",
+                    help="joint model gets one BatchNorm per modality")
+    ap.add_argument("--tag", default="", help="suffix for the results file")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--smoke", action="store_true")
@@ -192,10 +225,13 @@ def main():
     log = lambda s: print(s, flush=True)
     bs = args.batch_size
 
-    tr = {m: make_loader(m, "train", bs, True, args.max_train_samples, args.seed) for m in ("image", "audio")}
-    va = {m: make_loader(m, "val", bs, False, args.max_eval_samples, args.seed) for m in ("image", "audio")}
-    te = {m: make_loader(m, "test", bs, False, args.max_eval_samples, args.seed) for m in ("image", "audio")}
-    unl = {m: make_loader(m, "train", bs, False, 40 * bs, args.seed) for m in ("image", "audio")}
+    meth = {"image": args.image_methods, "audio": args.audio_methods}
+    tr = {m: make_loader(m, "train", bs, True, args.max_train_samples, args.seed, methods=meth[m]) for m in ("image", "audio")}
+    va = {m: make_loader(m, "val", bs, False, args.max_eval_samples, args.seed, methods=meth[m]) for m in ("image", "audio")}
+    te = {m: make_loader(m, "test", bs, False, args.max_eval_samples, args.seed, methods=meth[m]) for m in ("image", "audio")}
+    unl = {m: make_loader(m, "train", bs, False, 40 * bs, args.seed, methods=meth[m]) for m in ("image", "audio")}
+    out_csv = os.path.join(OUT, f"cross_modal_results{args.tag}.csv")
+    log(f"methods: image={meth['image'] or 'all'} audio={meth['audio'] or 'all'}")
 
     rows = []
 
@@ -204,14 +240,15 @@ def main():
         rows.append(dict(condition=cond, target=target, **r))
         log(f"{cond:28s} -> {target:5s} balanced={r['balanced']:.3f} auc={r['auc']:.3f} "
             f"cover={r['cover_recall']:.3f} stego={r['stego_recall']:.3f}")
-        pd.DataFrame(rows).to_csv(os.path.join(OUT, "cross_modal_results.csv"), index=False)
+        pd.DataFrame(rows).to_csv(out_csv, index=False)
 
     # --- single-modality controls ------------------------------------------------
     models = {}
     for mod in ("image", "audio"):
         log(f"\n== training {mod}-only trunk ==")
         m = CrossModalCNN().to(dev)
-        m = train_model(m, [(mod, tr[mod])], {mod: va[mod]}, args.epochs, args.lr, dev, log, f"{mod}_only")
+        m = train_model(m, [(mod, tr[mod])], {mod: va[mod]}, args.epochs,
+                        (args.lr_audio if (mod == "audio" and args.lr_audio) else args.lr), dev, log, f"{mod}_only")
         models[mod] = m
         record(f"{mod}_only", mod, m)
 
@@ -227,13 +264,13 @@ def main():
 
     # --- joint --------------------------------------------------------------------
     log("\n== joint training ==")
-    jm = CrossModalCNN().to(dev)
+    jm = CrossModalCNN(domain_bn=args.joint_domain_bn).to(dev)
     jm = train_model(jm, [("image", tr["image"]), ("audio", tr["audio"])], va, args.epochs,
                      args.lr, dev, log, "joint")
     for mod in ("image", "audio"):
         record("joint", mod, jm)
 
-    log("\nsaved " + os.path.join(OUT, "cross_modal_results.csv"))
+    log("\nsaved " + out_csv)
 
 
 if __name__ == "__main__":
