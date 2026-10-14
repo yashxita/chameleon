@@ -1,0 +1,8 @@
+test,view,balanced,auc,n_test
+held_out_checkpoint,baseline,0.667,0.715,40
+held_out_checkpoint,full,0.817,0.902,40
+blind(->qim_int8),baseline,0.55,0.61,20
+blind(->qim_int8),full,0.5,0.46,20
+per_method:lsb,full,0.75,0.925,20
+per_method:qim_parity,full,1.0,1.0,20
+per_method:qim_int8,full,0.7,0.78,20
